@@ -1,0 +1,50 @@
+# ===== DATA & OUTPUT (never commit) =====
+*.csv
+*.parquet
+*.xlsx
+*.xls
+*.zip
+*.gz
+data/
+output/
+Processed/
+
+# Exception: keep synthetic sample data in the repo for tests and demos
+!examples/dummy_data/**/*.csv
+
+# ===== LOGS =====
+*.log
+
+# ===== PYTHON =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ===== ENV & SECRETS =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+_archive/
