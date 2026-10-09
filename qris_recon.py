@@ -808,7 +808,7 @@ def build_non_recon_sheet(classified):
     parts = []
     for label, df in (
         ("Non_Recon", classified["non_recon"]),
-        ("QRIS_Individual_ATM_Prima", classified["qris_individual"]),
+        ("QRIS_Individual", classified["qris_individual"]),
         ("Unclassified", classified["unclassified"]),
     ):
         if df.empty:
