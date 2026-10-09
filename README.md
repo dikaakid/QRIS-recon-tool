@@ -1,4 +1,4 @@
-﻿# QRIS Recon Tool
+# QRIS Recon Tool
 
 Three-way reconciliation between:
 
@@ -207,8 +207,7 @@ stabilises around **T+2** (two days after the transaction date).
 
 Writing several hundred thousand rows per sheet through `openpyxl` was measured
 at **many minutes per sheet**. With multiple large sheets stacked (which the very
-first version of this script did), a real production run took **over half an
-hour and hundreds of MB**.
+first version of this script did), the workbook became slow to write and very large.
 
 ### The solution
 
@@ -251,8 +250,8 @@ Each of these exists for a specific, discovered reason.
 | `INCOMPLETE_DATA` != `MISMATCH`                         | A missing dashboard file part is not lost money                                                         |
 | Two-directional lookback (**H+1 AND H-1**)              | Batches at 00:05-00:55 and late-day batches both exist in real data                                     |
 | Match key = `(reference, amount)`, not `reference`      | The acquirer reuses the same `NO REFERENCE` for two unrelated transactions from two different merchants |
-| Vectorized merge - **never** `.apply(axis=1)`           | Measured **65x faster** (3.8 s vs 0.06 s on ~750k rows); the row-wise version once appeared to hang     |
-| Parquet + Excel exceptions-only                         | Over half an hour / hundreds of MB -> sub-second / far smaller                                          |
+| Transaction-level merge is vectorized (no row-wise `.apply`) | Row-wise logic over hundreds of thousands of rows is far slower; row-wise code is limited to the batch-level tables (hundreds of rows per day) |
+| Parquet for full detail, Excel for exceptions only | Writing every row to Excel through `openpyxl` is slow and produces very large files; Parquet is compact and re-queryable |
 | Ledger treated as live, only stable at T+2              | Totals change drastically if downloaded too early                                                       |
 | `"Sept"` -> `"Sep"` pre-cleaning before `pd.to_datetime` | Python `%b` does not recognise `"Sept"`; silently NaT otherwise                                         |
 | `dtype=str` enforced in ledger loader                   | Prevents mixed-type columns -> `ArrowTypeError` on `to_parquet()`                                       |
