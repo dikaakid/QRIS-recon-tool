@@ -5,7 +5,7 @@ Three-way reconciliation: bank statement <-> transaction
 dashboard <-> internal ledger (GDS).
 
 This script is the result of an extended debugging and design process. Every non-obvious
-rule below was learned by testing against real production data, not assumed up front.
+rule below was learned by testing against real-world data, not assumed up front.
 Read the docstring of the relevant function before changing any of this logic - several
 rules exist specifically because a naive version was tried first and produced wrong
 numbers.
@@ -73,9 +73,7 @@ GDS DATA IS A LIVE EXPORT, NOT A FINAL SNAPSHOT:
 
 EXCEL OUTPUT SIZE (why the raw sheets and the full line-level detail are NOT in the
 xlsx file):
-  Writing hundreds of thousands of rows per sheet through openpyxl was measured at 8+ minutes per sheet
-  and, with multiple large sheets stacked (which the very first version of this script
-  did), a real production run took over half an hour and hundreds of MB. The full row-per-row detail is
+  Writing hundreds of thousands of rows per sheet through openpyxl is very slow (minutes per sheet at this scale); with several large sheets stacked, the workbook became slow to write and very large. The full row-per-row detail is
   now written to a Parquet file instead (a fraction of a second, far smaller on disk,
   fully re-queryable with pandas/polars/DuckDB), and the Excel file only receives the
   "exceptions" - rows that are NOT already a clean settled match. Raw source data is not
@@ -741,12 +739,9 @@ def detect_double_settlement(dashboard_df, current_date, lookback_next_day=True)
 # ------------------------------------------------------------------------------------
 def build_line_per_line(gds_df, dashboard_df, settled_batches):
     """Vectorized on purpose - DO NOT use .apply(axis=1) here. For ~several hundred thousand rows x ~50
-    columns after the merge, row-by-row .apply was measured at 65x slower than the
-    vectorized version (3.8 seconds vs 0.06 seconds on synthetic data of this size) - and
-    the gap can be far worse on a slower machine or under I/O overhead. This exact
-    anti-pattern was previously responsible for a run that appeared to hang indefinitely.
+    columns after the merge, row-by-row .apply is far slower than the vectorized merge.
 
-    Matches on (reference, amount) rather than reference alone: real production data
+    Matches on (reference, amount) rather than reference alone: real-world data
     showed the acquirer reusing the same NO REFERENCE for two completely unrelated transactions
     from two different merchants, a few hours apart. Matching on reference alone would
     have silently merged the wrong pair together. Amount is added to the key purely to

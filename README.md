@@ -260,8 +260,7 @@ Each of these exists for a specific, discovered reason.
 ### The `ket` column
 
 `ket` is short for the Indonesian *keterangan* (remark / note). The column name
-is **kept as-is on purpose** - it is a column the reconciliation team already
-reads in the output Excel. Renaming it would break their downstream workflow.
+is **kept as-is on purpose** - downstream spreadsheets that reference this column keep working; renaming it would break them.
 
 ---
 
@@ -341,8 +340,8 @@ Written to `RECON_OUTPUT_DIR`:
 | Sheet                        | Purpose                                                                |
 |------------------------------|------------------------------------------------------------------------|
 | `Line Per Line (Exceptions)` | Rows that are not a clean settled match                                |
-| `Unrecon`                    | Dashboard rows with no ledger counterpart (with `ket` remark)          |
-| `Check_Settlement`           | Dashboard-anchored batch view, in the layout the team already uses     |
+| `Unrecon`                    | Ledger (GDS) rows with no dashboard counterpart (with `ket` remark)          |
+| `Check_Settlement`           | Dashboard-anchored batch view, one row per dashboard batch     |
 | `Non Recon Trx`              | Combined `NON_RECON` + `QRIS_INDIVIDUAL` + `UNCLASSIFIED` rows         |
 | `Double_Settlement_Flag`     | `NO REFERENCE` values appearing under >1 `BATCH REFERENCE`             |
 | `Exact_Duplicate_Dash`       | Full-row duplicates in the dashboard (file part likely downloaded twice) |
