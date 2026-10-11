@@ -153,7 +153,7 @@ GDS_LEADING_DATETIME = re.compile(r"^(\d{1,2} \w+ \d{4}, \d{2}:\d{2}:\d{2}),")
 # ------------------------------------------------------------------------------------
 # Helpers: date tokens - 3 sources, 3 different date formats. DO NOT unify them.
 # ------------------------------------------------------------------------------------
-def mutasi_dash_token(d):
+def statement_dash_token(d):
     return d.strftime("%d%b%Y")            # "17Sep2026"
 
 
@@ -165,7 +165,7 @@ def gds_token(d):
 # STEP 0: File discovery
 # ------------------------------------------------------------------------------------
 def discover_statement_file(source_dir, d):
-    token = mutasi_dash_token(d)
+    token = statement_dash_token(d)
     matches = [
         f for f in glob.glob(os.path.join(source_dir, "*.csv"))
         if (m := FNAME_STATEMENT.search(os.path.basename(f))) and m.group(1).lower() == token.lower()
@@ -178,7 +178,7 @@ def discover_statement_file(source_dir, d):
 
 
 def discover_dashboard_files(source_dir, d):
-    token = mutasi_dash_token(d)
+    token = statement_dash_token(d)
     found = []
     for f in glob.glob(os.path.join(source_dir, "*.csv")):
         m = FNAME_DASHBOARD.search(os.path.basename(f))
@@ -461,9 +461,9 @@ def agg_dashboard_by_batch(dashboard_df):
 
 
 def completeness_check(statement_wide, dashboard_agg):
-    mutasi_batches = set(statement_wide["STATEMENT_BATCH_REF"])
+    statement_batches = set(statement_wide["STATEMENT_BATCH_REF"])
     dash_batches = set(dashboard_agg["DASHBOARD_BATCH_REF"])
-    missing_in_dash = mutasi_batches - dash_batches
+    missing_in_dash = statement_batches - dash_batches
     if missing_in_dash:
         print(f"    [COMPLETENESS] {len(missing_in_dash)} batches exist in the statement but not in the dashboard "
               f"(likely a Dash file part has not been fully downloaded) - marked "
@@ -495,7 +495,7 @@ def reconcile_batches(statement_wide, dashboard_agg, incomplete_batches):
     return merged.sort_values("STATEMENT_BATCH_REF")
 
 
-def resolve_missing_in_mutasi(batch_recon, current_date, lookback_next_day=True):
+def resolve_missing_in_statement(batch_recon, current_date, lookback_next_day=True):
     """MISSING_IN_MUTASI means a batch is recorded in Dash but has no trace at all in the
     bank statement - different from MISMATCH (present on both sides but the
     amounts disagree) or INCOMPLETE_DATA (simply not fully downloaded yet). There are two
@@ -620,7 +620,7 @@ def build_check_settlement_sheet(current_date, dashboard_agg, statement_wide, da
         mdr_dash = row["dash_mdr"]
         settled_amount = (amount_dash - mdr_dash) if pd.notna(amount_dash) else None
 
-        mutasi_dt = row.get("statement_datetime")
+        statement_dt = row.get("statement_datetime")
         amount_lcy = None
         if pd.notna(row.get("statement_gross")):
             amount_lcy = row["statement_gross"] - abs(row["statement_fee"])   # net of the fee line, whatever its sign
@@ -632,7 +632,7 @@ def build_check_settlement_sheet(current_date, dashboard_agg, statement_wide, da
             "AMOUNT_DASH": amount_dash,
             "MDR AMOUNT_DASH": mdr_dash,
             "Settled Amount": settled_amount,
-            "DATE TIME": mutasi_dt,
+            "DATE TIME": statement_dt,
             "NO REFERENCE": row["STATEMENT_BATCH_REF"] if pd.notna(row.get("STATEMENT_BATCH_REF")) else None,
             "AMOUNT LCY": amount_lcy,
             "Duplicated": None,
@@ -646,10 +646,10 @@ def build_check_settlement_sheet(current_date, dashboard_agg, statement_wide, da
                     or abs(abs(row["statement_fee"]) - mdr_dash) > TOLERANCE_RP):
                 out["Match?"] = "Unmatch"
             else:
-                mutasi_date_str = pd.to_datetime(mutasi_dt).strftime("%d-%m-%Y") if pd.notna(mutasi_dt) else None
-                if mutasi_date_str and mutasi_date_str != date_dash_str:
-                    direction = "next day" if pd.to_datetime(mutasi_dt).date() > current_date.date() else "previous day"
-                    out["Match?"] = f"Match (settled {direction}, {mutasi_date_str})"
+                statement_date_str = pd.to_datetime(statement_dt).strftime("%d-%m-%Y") if pd.notna(statement_dt) else None
+                if statement_date_str and statement_date_str != date_dash_str:
+                    direction = "next day" if pd.to_datetime(statement_dt).date() > current_date.date() else "previous day"
+                    out["Match?"] = f"Match (settled {direction}, {statement_date_str})"
                 else:
                     out["Match?"] = "Match"
         elif row["_merge"] == "left_only":
@@ -995,7 +995,7 @@ def run(date_str, lookback_next_day=True):
     dashboard_agg, dashboard_non_succeed = agg_dashboard_by_batch(dashboard_df)
     incomplete = completeness_check(statement_wide, dashboard_agg)
     batch_recon = reconcile_batches(statement_wide, dashboard_agg, incomplete)
-    batch_recon = resolve_missing_in_mutasi(batch_recon, d, lookback_next_day)
+    batch_recon = resolve_missing_in_statement(batch_recon, d, lookback_next_day)
     settled_batches = settled_batch_set(batch_recon)
     check_settlement_sheet = build_check_settlement_sheet(
         d, dashboard_agg, statement_wide, dashboard_exact_dupes, lookback_next_day

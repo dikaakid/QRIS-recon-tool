@@ -60,15 +60,15 @@ from the sample data is in [`examples/sample_output/`](examples/sample_output/).
 
 ```text
  QRIS RECONCILIATION - Thursday, 17 September 2026
---- STEP 2: Classifying Mutasi rows ---
+--- STEP 2: Classifying statement rows ---
   QRIS Batch (BA-/BQ-)       : 32 rows
   QRIS Individual (individual rail): 7 rows
   Non-Recon (internal moves) : 2 rows
   Unclassified (needs review): 1 rows
   QRIS Individual pairing    : {'PAIRED': 2, 'RESOLVED_NEXTDAY': 2, 'PENDING_FEE_CROSSDAY': 1}
---- STEP 3: Batch settlement check (Mutasi vs Dash) ---
-  [COMPLETENESS] 2 batches exist in Mutasi but not in Dash ... marked INCOMPLETE_DATA, not MISMATCH.
-  [MISSING_IN_MUTASI] 1 batches are STILL not found in Mutasi after checking both H+1 and H-1 - MUST be escalated
+--- STEP 3: Batch settlement check (statement vs dashboard) ---
+  [COMPLETENESS] 2 batches exist in the statement but not in the dashboard ... marked INCOMPLETE_DATA, not MISMATCH.
+  [MISSING_IN_MUTASI] 1 batches are STILL not found in the statement after checking both H+1 and H-1 - MUST be escalated
     MATCH                            11
     MISMATCH                          4
     CROSSDAY_BOUNDARY_ARTIFACT        3
@@ -89,7 +89,7 @@ or an underscore between name and date.
 
 | Source | File name | Format | Columns the tool needs |
 |---|---|---|---|
-| Bank statement ("Mutasi") | `BankStatement 17Sep2026.csv` | `\|`-separated | `NO REFERENCE`, `TRX DESC`, `NARRATIVE`, `TRANSACTION CODE`, `AMOUNT LCY`, `DATE TIME` (`dd/mm/yyyy HH:MM`) |
+| Bank statement | `BankStatement 17Sep2026.csv` | `\|`-separated | `NO REFERENCE`, `TRX DESC`, `NARRATIVE`, `TRANSACTION CODE`, `AMOUNT LCY`, `DATE TIME` (`dd/mm/yyyy HH:MM`) |
 | Dashboard ("Dash") | `TransactionDashboard 17Sep2026[_N].csv` (may be split in parts) | `\|`-separated | `NO REFERENCE`, `BATCH REFERENCE`, `AMOUNT`, `MDR AMOUNT`, `STATUS TRANSACTION` |
 | Internal ledger ("GDS") | `GDS_..._2026-09-17.csv` | comma-separated | `transaction_datetime`, `Transaction SN`, `transaction_amount` |
 

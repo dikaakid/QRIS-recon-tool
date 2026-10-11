@@ -1,4 +1,4 @@
-﻿"""Tests for file discovery and regex patterns."""
+"""Tests for file discovery and regex patterns."""
 from datetime import datetime
 from pathlib import Path
 import sys
@@ -43,9 +43,9 @@ def test_ledger_regex_rejects_wrong_format():
     assert not qr.FNAME_GDS.search("GDS_ACQUIRER.csv")
 
 
-def test_mutasi_dash_token_format():
+def test_statement_dash_token_format():
     d = datetime(2026, 9, 17)
-    assert qr.mutasi_dash_token(d) == "17Sep2026"
+    assert qr.statement_dash_token(d) == "17Sep2026"
 
 
 def test_gds_token_format():
