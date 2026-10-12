@@ -8,5 +8,6 @@ Initial release.
 - Batch settlement check with midnight-boundary lookback (H-1 / H+1).
 - Double-settlement detection with configurable acquirer tag.
 - Transaction-level match on a (reference, amount) key.
+- Repeated ledger keys are preserved as ledger-only rows instead of being dropped.
 - Excel exceptions report plus Parquet full-detail output.
-- Synthetic sample data generator, end-to-end test suite, GitHub Actions CI.
+- Synthetic sample data generator, end-to-end test suite, and GitHub Actions CI across Python 3.10-3.13.

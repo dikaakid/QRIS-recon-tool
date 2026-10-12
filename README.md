@@ -109,8 +109,8 @@ the loader detects the quoting style from the first data row and repairs it only
 | `NON_RECON` | description/narrative keywords or description prefixes (see *Configuration*) |
 | `UNCLASSIFIED` | everything else - must be reviewed by a person |
 
-**2. Batch settlement (bank vs dashboard).** Gross, fee and net must each agree within
-`TOLERANCE_RP` (default Rp 1).
+**2. Batch settlement (bank vs dashboard).** Gross and fee must each agree within
+`TOLERANCE_RP` (default Rp 1). Net is derived from both, so it agrees as well.
 
 | Status | Meaning |
 |---|---|
