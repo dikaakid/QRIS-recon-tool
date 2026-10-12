@@ -49,7 +49,7 @@ htmlcov/
 *.key
 _archive/
 
-# --- added by the optimisation patch: keep the synthetic samples, never real data ---
+# --- keep the synthetic samples, never real data ---
 !sample_data/
 !sample_data/**/*.csv
 !examples/sample_output/

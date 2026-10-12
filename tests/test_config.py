@@ -1,4 +1,4 @@
-﻿"""Tests for environment-driven configuration."""
+"""Tests for environment-driven configuration."""
 import importlib
 import sys
 from pathlib import Path

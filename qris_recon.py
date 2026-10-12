@@ -813,20 +813,6 @@ def build_line_per_line(gds_df, dashboard_df, settled_batches):
               f"occurrence will be matched to GDS. Check Double_Settlement_Flag for these references.")
     dashboard_df = dashboard_df.drop_duplicates(subset=["_match_key"], keep="first")
 
-    # GDS is expected to be unique on (reference, amount) for a stable T+2 export,
-    # but we check explicitly rather than relying on that assumption. If GDS has
-    # duplicates, the following outer merge with validate="one_to_one" would raise
-    # a generic MergeError - a message that gives no clue which side is at fault.
-    # Deduplicating first with a clear warning keeps the script running while
-    # still surfacing the anomaly for review.
-    gds_dupe_keys = gds_df["_match_key"].duplicated(keep=False)
-    if gds_dupe_keys.any():
-        print(f"    [WARNING] {gds_dupe_keys.sum()} GDS rows collide on (reference, amount). "
-              f"This is unusual for a stable export. Keeping the first occurrence per "
-              f"match key - if this is unexpected, investigate the source GDS file before "
-              f"trusting the reconciliation result.")
-    gds_df = gds_df.drop_duplicates(subset=["_match_key"], keep="first")
-
     # Dash keys are unique at this point. A ledger key that repeats gets a running suffix so the merge
     # stays strictly one-to-one: the repeat then shows up as an unreconciled ledger-only row instead of
     # silently multiplying matched rows.

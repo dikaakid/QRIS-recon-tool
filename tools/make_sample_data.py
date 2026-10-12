@@ -203,14 +203,12 @@ def build(out_dir, day=date(2026, 9, 17), seed=7, non_recon_keyword="INTERNAL TR
         "n_gap_trx": sum(1 for t in trx if t["batch"] == refs["gap"]),
         "n_dash_rows": len(trx) - sum(1 for t in trx if t["batch"] == refs["incomplete"]),
         "n_gds_rows": len(gds_rows),
-        # GDS_ONLY count = unique keys contributed by gds_extra that are not
-        # already accounted for by a Dash row. One gds_extra entry may share a
-        # key with a trx-derived GDS row (intentional, to exercise GDS dedup),
-        # in which case it is not GDS_ONLY after dedup.
-        "n_gds_only": len(
-            {f"{g['sn']}|{g['amount']}" for g in gds_extra}
-            - {f"{t['ref']}|{t['amount']}" for t in trx if t["batch"] != refs["incomplete"]}
-        ),
+        # Every gds_extra row ends up as GDS_ONLY: even when its (reference, amount)
+        # key also appears in a trx-derived GDS row, the suffix mechanism in
+        # build_line_per_line preserves it as a separate ledger-only row (with a
+        # #N suffix) rather than dropping it. Count is therefore the raw size of
+        # gds_extra, not a de-duplicated subset.
+        "n_gds_only": len(gds_extra),
     }
 
 

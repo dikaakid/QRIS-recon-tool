@@ -1,4 +1,4 @@
-﻿"""Tests for statement row classification."""
+"""Tests for statement row classification."""
 from pathlib import Path
 import sys
 

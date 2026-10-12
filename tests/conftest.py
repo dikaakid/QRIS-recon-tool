@@ -1,4 +1,4 @@
-﻿"""Shared fixtures for QRIS recon tests."""
+"""Shared fixtures for QRIS recon tests."""
 import pytest
 
 

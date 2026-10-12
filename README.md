@@ -13,9 +13,11 @@ before they turn into escalations.
 ## Background
 
 This started as a daily reconciliation chore: comparing a bank statement, a dashboard
-export and an internal ledger by hand. The first automated version was a 900-line script
-that took over half an hour to run and produced a 450 MB Excel file. This is the rewrite
-that the operations team actually uses.
+export and an internal ledger by hand. The first automated version tried to do all of
+it in a single pass. It worked at low volume, but the naive approach didn't survive
+contact with real production data - boundary effects, partial downloads, and reused
+references all showed up in the same week. This is the rewrite that splits the problem
+into stages and makes every decision explicit.
 
 The three sources never share one clean key and never close at the same instant:
 
@@ -206,12 +208,18 @@ The tests run the whole pipeline on it and assert each outcome. CI runs them on 
 ## Project layout
 
 ```text
-qris_recon.py            the reconciliation pipeline (python qris_recon.py YYYY-MM-DD)
-tools/make_sample_data.py  synthetic data generator
-tests/test_recon.py      end-to-end tests on the synthetic data
-sample_data/             generated sample inputs (synthetic)
-examples/sample_output/  workbook produced from the sample data
-docs/mutation-checks.md  evidence that the tests catch each fix being reverted
+qris_recon.py                the reconciliation pipeline (python qris_recon.py YYYY-MM-DD)
+tools/make_sample_data.py    synthetic data generator
+tests/
+  conftest.py                shared pytest fixtures
+  test_recon.py              end-to-end tests on the synthetic data
+  test_classify.py           statement classification tests
+  test_config.py             configuration parsing tests
+  test_helpers.py            utility helper tests
+  test_regex.py              file-name and reference regex tests
+sample_data/                 generated sample inputs (synthetic)
+examples/sample_output/      workbook + parquet produced from the sample data
+docs/mutation-checks.md      evidence that the tests catch each fix being reverted
 ```
 
 ## License

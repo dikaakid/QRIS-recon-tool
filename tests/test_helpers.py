@@ -1,4 +1,4 @@
-﻿"""Tests for utility functions."""
+"""Tests for utility functions."""
 from pathlib import Path
 import sys
 
